@@ -68,14 +68,17 @@ RUN apt-get install -y --no-install-recommends \
     ln -s /usr/bin/python3 python &&\
     ln -s /usr/bin/pip3 pip;
 
-# Install TensorRT
+# Install TensorRT - download without proxy (direct connection)
+ENV HTTP_PROXY=
+ENV HTTPS_PROXY=
+ENV NO_PROXY=
 RUN if [ "${CUDA_VERSION:0:2}" = "13" ]; then \
-    wget https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/10.15.1/tars/TensorRT-10.15.1.29.Linux.x86_64-gnu.cuda-13.1.tar.gz \
+    wget --timeout=300 -q --proxy=on https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/10.15.1/tars/TensorRT-10.15.1.29.Linux.x86_64-gnu.cuda-13.1.tar.gz \
     && tar -xf TensorRT-10.15.1.29.Linux.x86_64-gnu.cuda-13.1.tar.gz \
     && cp -a TensorRT-10.15.1.29/lib/*.so* /usr/lib64 \
     && pip install TensorRT-10.15.1.29/python/tensorrt-10.15.1.29-cp310-none-linux_x86_64.whl ;\
     elif [ "${CUDA_VERSION:0:2}" = "12" ]; then \
-    wget https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/10.15.1/tars/TensorRT-10.15.1.29.Linux.x86_64-gnu.cuda-12.9.tar.gz \
+    wget --timeout=300 -q --proxy=on https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/10.15.1/tars/TensorRT-10.15.1.29.Linux.x86_64-gnu.cuda-12.9.tar.gz \
     && tar -xf TensorRT-10.15.1.29.Linux.x86_64-gnu.cuda-12.9.tar.gz \
     && cp -a TensorRT-10.15.1.29/lib/*.so* /usr/lib64 \
     && pip install TensorRT-10.15.1.29/python/tensorrt-10.15.1.29-cp310-none-linux_x86_64.whl ;\
@@ -85,12 +88,21 @@ RUN if [ "${CUDA_VERSION:0:2}" = "13" ]; then \
     fi
 
 
-# Install PyPI packages
+# Install PyPI packages - use mirror for faster download in China
+RUN mkdir -p /root/.config/pip && \
+    echo '[global]' > /root/.config/pip/pip.conf && \
+    echo 'index-url = https://pypi.tuna.tsinghua.edu.cn/simple' >> /root/.config/pip/pip.conf && \
+    echo 'trusted-host = pypi.tuna.tsinghua.edu.cn' >> /root/.config/pip/pip.conf && \
+    echo 'proxy = ' >> /root/.config/pip/pip.conf
+
 RUN pip3 install --upgrade pip
 RUN pip3 install setuptools>=41.0.0
 RUN pip3 install jupyter jupyterlab
 # Workaround to remove numpy installed with tensorflow
 RUN pip3 install --upgrade numpy
+
+# Install PyTorch
+RUN pip3 install torch torchvision -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # Install Cmake
 RUN cd /tmp && \
@@ -99,14 +111,14 @@ RUN cd /tmp && \
     ./cmake-3.27.9-Linux-x86_64.sh --prefix=/usr/local --exclude-subdir --skip-license && \
     rm ./cmake-3.27.9-Linux-x86_64.sh
 
-# Download NGC client
-RUN cd /usr/local/bin && wget https://ngc.nvidia.com/downloads/ngccli_cat_linux.zip && unzip ngccli_cat_linux.zip && chmod u+x ngc-cli/ngc && rm ngccli_cat_linux.zip ngc-cli.md5 && echo "no-apikey\nascii\n" | ngc-cli/ngc config set
+# Download NGC client (optional - skip if network fails)
+# RUN cd /usr/local/bin && wget https://ngc.nvidia.com/downloads/ngccli_cat_linux.zip && unzip ngccli_cat_linux.zip && chmod u+x ngc-cli/ngc && rm ngccli_cat_linux.zip ngc-cli.md5 && echo "no-apikey\nascii\n" | ngc-cli/ngc config set
 
 # Set environment and working directory
 ENV TRT_LIBPATH /usr/lib/x86_64-linux-gnu
 ENV TRT_OSSPATH /workspace/TensorRT
-ENV PATH="/workspace/TensorRT/build/out:${PATH}:/usr/local/bin/ngc-cli"
-ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${TRT_OSSPATH}/build/out:${TRT_LIBPATH}"
+ENV PATH="/workspace/TensorRT/build/out:${PATH}"
+ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${TRT_OSSPATH}/build/out:${TRT_LIBPATH}:/usr/lib64"
 WORKDIR /workspace
 
 USER trtuser

@@ -1,0 +1,20 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/home/gky/miniconda3/envs/openMMLab/include/python3.8",
+                "/home/gky/miniconda3/envs/openMMLab/lib/python3.8/site-packages/torch/include",
+                "/home/gky/miniconda3/envs/openMMLab/lib/python3.8/site-packages/torch/include/ATen",
+                "/home/gky/miniconda3/envs/openMMLab/lib/python3.8/site-packages/torch/include/c10"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/g++",
+            "cStandard": "c11",
+            "cppStandard": "c++14",
+            "intelliSenseMode": "gcc-x64"
+        }
+    ],
+    "version": 4
+}

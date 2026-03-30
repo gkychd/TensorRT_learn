@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//etc/docker/**)",
+      "Bash(sudo tee:*)",
+      "Bash(apt-cache policy nvidia-container-toolkit-base)",
+      "Read(//etc/apt/sources.list.d/**)",
+      "Bash(dpkg -l)"
+    ]
+  }
+}
