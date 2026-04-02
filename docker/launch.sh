@@ -48,7 +48,7 @@ if [ "$arg_jupyter" -ne "0" ]; then
 fi
 
 #docker_args="$extra_args -v ${PWD}:/workspace/TensorRT --rm -it $arg_tag:latest"
-docker_args="$extra_args -v ${PWD}:/workspace/TensorRT --rm -it -e LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH $arg_tag:latest"
+docker_args="$extra_args -v ${PWD}:/workspace/TensorRT -it -p 6801:22 -e LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH $arg_tag:latest"
 
 if [ "$arg_jupyter" -ne "0" ]; then
     docker_args+=" jupyter-lab --port=$arg_jupyter --no-browser --ip 0.0.0.0 --allow-root"

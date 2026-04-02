@@ -5,7 +5,7 @@ import tensorrt as trt
 TRT_LOGGER = trt.Logger(trt.Logger.WARNING)
 
 print("Loading custom plugin library...")
-lib = ctypes.CDLL("./libmmdeploy_tensorrt_ops.so", ctypes.RTLD_GLOBAL)
+lib = ctypes.CDLL("./build/libmmdeploy_tensorrt_ops.so", ctypes.RTLD_GLOBAL)
 print(f"Library loaded: {lib}")
 
 # 初始化插件

@@ -1,0 +1,20 @@
+
+ONNX Model Description
+=====================
+
+Model: attention_v1.onnx equivalent
+Opset: 13
+
+Input:
+  query: [1, 8, 1, 16]   (float32)
+  key:   [1, 8, 200, 16] (float32)
+  value: [1, 8, 200, 16] (float32)
+
+Operations:
+  1. MatMul(query, key^T) -> [1, 8, 1, 200]
+  2. Mul(, 0.25) -> scale by 1/sqrt(16)
+  3. Softmax(axis=3) -> [1, 8, 1, 200]
+  4. MatMul(attn, value) -> [1, 8, 1, 16]
+
+Output:
+  output: [1, 8, 1, 16] (float32)

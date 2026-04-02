@@ -4,7 +4,7 @@ import os
 import re
 
 # 方法1: 使用 nm 从 .so 文件中提取插件名称
-so_file = "./libmmdeploy_tensorrt_ops.so"
+so_file = "./build/libmmdeploy_tensorrt_ops.so"
 
 if not os.path.exists(so_file):
     print(f"Error: {so_file} not found!")
